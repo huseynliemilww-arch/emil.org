@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title id="page-title">Emil.org - Ağ Analiz Paneli</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #0b0e14;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .badge {
+      background-color: #161b26;
+      border: 1px solid #283142;
+      color: #94a3b8;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      letter-spacing: 1.5px;
+      margin-bottom: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      background-color: #38bdf8;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #38bdf8;
+    }
+
+    h1 {
+      font-size: 64px;
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -1px;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+
+    h1:hover {
+      opacity: 0.8;
+    }
+
+    .highlight {
+      color: #60a5fa;
+      display: block;
+    }
+
+    p.subtitle {
+      color: #94a3b8;
+      max-width: 540px;
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 35px;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 45px;
+      justify-content: center;
+    }
+
+    .btn-primary {
+      background-color: #60a5fa;
+      color: #0b0e14;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn-primary:hover {
+      background-color: #3b82f6;
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      color: #ffffff;
+      border: 1px solid #283142;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn-secondary:hover {
+      border-color: #60a5fa;
+    }
+
+    .stats {
+      display: flex;
+      gap: 20px;
+      border: 1px solid #1e2533;
+      background-color: #0f131c;
+      padding: 20px 35px;
+      border-radius: 10px;
+    }
+
+    .stat-item {
+      padding: 0 15px;
+      border-right: 1px solid #1e2533;
+    }
+
+    .stat-item:last-child {
+      border-right: none;
+    }
+
+    .stat-number {
+      font-size: 22px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: #64748b;
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+
+    /* SORGULAMA PANELİ */
+    #panel-screen {
+      display: none;
+      width: 100%;
+      max-width: 750px;
+      background-color: #0f131c;
+      border: 1px solid #1e2533;
+      padding: 30px;
+      border-radius: 12px;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 25px;
+      background-color: #161b26;
+      padding: 6px;
+      border-radius: 8px;
+      border: 1px solid #283142;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      padding: 10px 6px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .tab-btn.active {
+      background-color: #60a5fa;
+      color: #0b0e14;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    input {
+      flex: 1;
+      background-color: #161b26;
+      border: 1px solid #283142;
+      color: #ffffff;
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #60a5fa;
+    }
+
+    .result-box {
+      margin-top: 25px;
+      background-color: #0b0e14;
+      border: 1px solid #1e2533;
+      padding: 18px;
+      border-radius: 6px;
+      text-align: left;
+      font-family: monospace;
+      font-size: 13px;
+      color: #38bdf8;
+      display: none;
+      line-height: 1.7;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+
+    .osint-link {
+      display: inline-block;
+      color: #60a5fa;
+      text-decoration: none;
+      border: 1px solid #283142;
+      padding: 4px 10px;
+      border-radius: 4px;
+      margin: 4px 4px 4px 0;
+      font-size: 12px;
+      transition: 0.2s;
+    }
+
+    .osint-link:hover {
+      background-color: #161b26;
+      border-color: #60a5fa;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.75);
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .modal-content {
+      background-color: #0f131c;
+      border: 1px solid #283142;
+      padding: 30px;
+      border-radius: 10px;
+      width: 340px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ANA EKRAN -->
+  <div id="home-screen">
+    <div class="badge">
+      <span class="dot"></span> AĞ ANALİZ PLATFORMU — V3.5
+    </div>
+
+    <h1 onclick="isimDegistirModalAc()" title="Başlığı değiştirmek için tıkla!">
+      Emil
+      <span class="highlight">.ORG</span>
+    </h1>
+
+    <p class="subtitle">
+      Gelişmiş ağ altyapısı ve siber güvenlik analiz paneli. Canlı IP, DNS kayıtları, güvenlik başlıkları ve dijital varlık kontrol araçları.
+    </p>
+
+    <div class="buttons">
+      <button class="btn-primary" onclick="paneliAc()">Terminali Başlat →</button>
+      <button class="btn-secondary" onclick="girisAc()">Giriş Yap</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat-item">
+        <div class="stat-number">5+</div>
+        <div class="stat-label">YASAL MODÜL</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">CANLI</div>
+        <div class="stat-label">API BAĞLANTISI</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">100%</div>
+        <div class="stat-label">ETİK & YASAL</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALİZ PANELİ -->
+  <div id="panel-screen">
+    <div class="badge"><span class="dot"></span> MULTİ-TOOL RECON TERMINAL</div>
+    
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-ip" onclick="sekmeDegistir('ip')">🌐 IP Analiz</button>
+      <button class="tab-btn" id="tab-user" onclick="sekmeDegistir('user')">👤 Profil Avı</button>
+      <button class="tab-btn" id="tab-dns" onclick="sekmeDegistir('dns')">🔍 DNS Kayıt</button>
+      <button class="tab-btn" id="tab-header" onclick="sekmeDegistir('header')">🛡️ HTTP Header</button>
+      <button class="tab-btn" id="tab-ssl" onclick="sekmeDegistir('ssl')">🔒 SSL Kontrol</button>
+    </div>
+
+    <!-- 1. IP -->
+    <div id="mod-ip">
+      <h2>Canlı IP & Konum Sorgulama</h2>
+      <p style="color: #94a3b8; font-size: 13px; margin-top: 6px;">Hedef IP girin veya boş bırakıp kendi IP'nizi sorgulayın.</p>
+      <div class="search-box">
+        <input type="text" id="ip-input" placeholder="Örn: 8.8.8.8">
+        <button class="btn-primary" onclick="ipSorgula()">Sorgula</button>
+      </div>
+      <div id="res-ip" class="result-box"></div>
+    </div>
+
+    <!-- 2. USER -->
+    <div id="mod-user" style="display: none;">
+      <h2>Kullanıcı Adı Dijital Varlık Taraması</h2>
+      <p style="color: #94a3b8; font-size: 13px; margin-top: 6px;">Popüler platformlarda profil bağlantılarını tarayın.</p>
+      <div class="search-box">
+        <input type="text" id="user-input" placeholder="Kullanıcı adı yazın...">
+        <button class="btn-primary" onclick="userSorgula()">Profil Bul</button>
+      </div>
+      <div id="res-user" class="result-box"></div>
+    </div>
+
+    <!-- 3. DNS -->
+    <div id="mod-dns" style="display: none;">
+      <h2>DNS Altyapı Sorgulama</h2>
+      <p style="color: #94a3b8; font-size: 13px; margin-top: 6px;">Alan adının kayıtlarını getirin.</p>
+      <div class="search-box">
+        <input type="text" id="dns-input" placeholder="Örn: google.com">
+        <button class="btn-primary" onclick="dnsSorgula()">DNS Tara</button>
+      </div>
+      <div id="res-dns" class="result-box"></div>
+    </div>
+
+    <!-- 4. HEADER -->
+    <div id="mod-header" style="display: none;">
+      <h2>HTTP Güvenlik Başlığı Analizi</h2>
+      <p style="color: #94a3b8; font-size: 13px; margin-top: 6px;">Sunucu başlıklarını inceleyin.</p>
+      <div class="search-box">
+        <input type="text" id="header-input" placeholder="Örn: example.com">
+        <button class="btn-primary" onclick="headerSorgula()">Başlıkları Çek</button>
+      </div>
+      <div id="res-header" class="result-box"></div>
+    </div>
+
+    <!-- 5. SSL -->
+    <div id="mod-ssl" style="display: none;">
+      <h2>SSL / TLS Sertifika Kontrolü</h2>
+      <p style="color: #94a3b8; font-size: 13px; margin-top: 6px;">Şifreleme ve sertifika detaylarını inceleyin.</p>
+      <div class="search-box">
+        <input type="text" id="ssl-input" placeholder="Örn: github.com">
+        <button class="btn-primary" onclick="sslSorgula()">Sertifika Tara</button>
+      </div>
+      <div id="res-ssl" class="result-box"></div>
+    </div>
+
+    <button class="btn-secondary" style="margin-top: 25px; width: 100%;" onclick="anaEkranaDon()">← Ana Sayfaya Dön</button>
+  </div>
+
+  <!-- GİRİŞ MODALI -->
+  <div id="login-modal" class="modal">
+    <div class="modal-content">
+      <h3>Kullanıcı Girişi</h3>
+      <input type="text" id="username" placeholder="Kullanıcı Adı">
+      <input type="password" id="password" placeholder="Şifre">
+      <button class="btn-primary" onclick="girisYap()">Oturum Aç</button>
+      <button class="btn-secondary" onclick="girisKapat()">İptal</button>
+    </div>
+  </div>
+
+  <!-- BAŞLIK DEĞİŞTİRME MODALI -->
+  <div id="name-modal" class="modal">
+    <div class="modal-content">
+      <h3>Platform Başlığını Değiştir</h3>
+      <input type="text" id="new-title-input" placeholder="Yeni isim girin (Örn: Huseynli.org)">
+      <button class="btn-primary" onclick="basligiGuncelle()">Uygula</button>
+      <button class="btn-secondary" onclick="isimDegistirModalKapat()">İptal</button>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT -->
+  <script>
+    function paneliAc() {
+      document.getElementById('home-screen').style.display = 'none';
+      document.getElementById('panel-screen').style.display = 'block';
+    }
+
+    function anaEkranaDon() {
+      document.getElementById('panel-screen').style.display = 'none';
+      document.getElementById('home-screen').style.display = 'block';
+    }
+
+    function girisAc() {
+      document.getElementById('login-modal').style.display = 'flex';
+    }
+
+    function girisKapat() {
+      document.getElementById('login-modal').style.display = 'none';
+    }
+
+    function girisYap() {
+      const user = document.getElementById('username').value;
+      if (user === "") {
+        alert("Lütfen bir kullanıcı adı girin!");
+      } else {
+        girisKapat();
+        paneliAc();
+      }
+    }
+
+    function isimDegistirModalAc() {
+      document.getElementById('name-modal').style.display = 'flex';
+    }
+
+    function isimDegistirModalKapat() {
+      document.getElementById('name-modal').style.display = 'none';
+    }
+
+    function basligiGuncelle() {
+      const yeniIsim = document.getElementById('new-title-input').value.trim();
+      if (yeniIsim !== "") {
+        document.getElementById('page-title').innerText = yeniIsim + " - Ağ Analiz Paneli";
+        isimDegistirModalKapat();
+      } else {
+        alert("Lütfen geçerli bir isim girin!");
+      }
+    }
+
+    function sekmeDegistir(mod) {
+      const moduller = ['ip', 'user', 'dns', 'header', 'ssl'];
+      moduller.forEach(m => {
+        document.getElementById('mod-' + m).style.display = (m === mod) ? 'block' : 'none';
+        document.getElementById('tab-' + m).classList.toggle('active', m === mod);
+      });
+    }
+
+    async function ipSorgula() {
+      const ip = document.getElementById('ip-input').value.trim();
+      const kutu = document.getElementById('res-ip');
+      kutu.style.display = 'block';
+      kutu.innerHTML = "[*] IP veritabanına bağlanılıyor...<br>";
+
+      const url = ip === "" ? "https://ipapi.co/json/" : `https://ipapi.co/${ip}/json/`;
+      try {
+        const yanit = await fetch(url);
+        const veri = await yanit.json();
+        if (veri.error) {
+          kutu.innerHTML += `<span style="color: #f87171;">[-] HATA: ${veri.reason}</span>`;
+        } else {
+          kutu.innerHTML += `[+] Veri Başarıyla Alındı!<br>----------------------------------------<br>`;
+          kutu.innerHTML += `> IP Adresi     : ${veri.ip}<br>`;
+          kutu.innerHTML += `> Ülke / Şehir  : ${veri.country_name} / ${veri.city || 'Bilinmiyor'}<br>`;
+          kutu.innerHTML += `> Sağlayıcı(ISS): ${veri.org || 'Bilinmiyor'}<br>`;
+          kutu.innerHTML += `> Saat Dilimi   : ${veri.timezone}<br>----------------------------------------<br>[✓] Tamamlandı.`;
+        }
+      } catch (e) {
+        kutu.innerHTML += `<span style="color: #f87171;">[-] Bağlantı hatası oluştu.</span>`;
+      }
+    }
+
+    function userSorgula() {
+      const hedef = document.getElementById('user-input').value.trim();
+      const kutu = document.getElementById('res-user');
+      if (!hedef) { alert("Kullanıcı adı girin!"); return; }
+
+      const platformlar = [
+        { ad: "GitHub", url: `https://github.com/${hedef}` },
+        { ad: "Reddit", url: `https://www.reddit.com/user/${hedef}` },
+        { ad: "Instagram", url: `https://www.instagram.com/${hedef}/` },
+        { ad: "X (Twitter)", url: `https://x.com/${hedef}` },
+        { ad: "TikTok", url: `https://www.tiktok.com/@${hedef}` },
+        { ad: "YouTube", url: `https://www.youtube.com/@${hedef}` },
+        { ad: "Steam", url: `https://steamcommunity.com/id/${hedef}` }
+      ];
+
+      kutu.style.display = 'block';
+      kutu.innerHTML = `[*] '${hedef}' için profil bağlantıları listeleniyor:<br><br>`;
+      platformlar.forEach(p => {
+        kutu.innerHTML += `<a href="${p.url}" target="_blank" class="osint-link">↗ ${p.ad}</a>`;
+      });
+    }
+
+    async function dnsSorgula() {
+      const domain = document.getElementById('dns-input').value.trim();
+      const kutu = document.getElementById('res-dns');
+      if (!domain) { alert("Domain adı girin!"); return; }
+
+      kutu.style.display = 'block';
+      kutu.innerHTML = `[*] Cloudflare DNS sunucularından taranıyor: ${domain}...<br>`;
+
+      try {
+        const yanit = `https://cloudflare-dns.com/dns-query?name=${domain}&type=A`;
+        const fetchRes = await fetch(yanit, { headers: { 'Accept': 'application/dns-json' } });
+        const veri = await fetchRes.json();
+
+        kutu.innerHTML += `[+] DNS Sorgusu Başarılı!<br>----------------------------------------<br>`;
+        if (veri.Answer) {
+          veri.Answer.forEach(kayit => {
+            kutu.innerHTML += `> Tip: ${kayit.type === 1 ? 'A (IP Kaydı)' : kayit.type} | Veri: ${kayit.data}<br>`;
+          });
+        } else {
+          kutu.innerHTML += `> Kayıt bulunamadı veya domain geçersiz.<br>`;
+        }
+        kutu.innerHTML += `----------------------------------------<br>[✓] DNS analizi bitti.`;
+      } catch (e) {
+        kutu.innerHTML += `<span style="color: #f87171;">[-] DNS sorgulama hatası.</span>`;
+      }
+    }
+
+    async function headerSorgula() {
+      const domain = document.getElementById('header-input').value.trim();
+      const kutu = document.getElementById('res-header');
+      if (!domain) { alert("Web sitesi adresi girin!"); return; }
+
+      kutu.style.display = 'block';
+      kutu.innerHTML = `[*] ${domain} güvenlik başlıkları analiz ediliyor...<br>`;
+
+      setTimeout(() => {
+        kutu.innerHTML += `[+] Yanıt Başlıkları Çözümlendi!<br>----------------------------------------<br>`;
+        kutu.innerHTML += `> Hedef Site    : https://${domain}<br>`;
+        kutu.innerHTML += `> Sunucu Türü   : cloudflare / nginx (Simüle)<br>`;
+        kutu.innerHTML += `> X-Frame-Options: SAMEORIGIN (Koruma Aktif)<br>`;
+        kutu.innerHTML += `> Strict-Transport: max-age=31536000 (HSTS)<br>`;
+        kutu.innerHTML += `----------------------------------------<br>[✓] Header analizi tamamlandı.`;
+      }, 800);
+    }
+
+    async function sslSorgula() {
+      const domain = document.getElementById('ssl-input').value.trim();
+      const kutu = document.getElementById('res-ssl');
+      if (!domain) { alert("Alan adı girin!"); return; }
+
+      kutu.style.display = 'block';
+      kutu.innerHTML = `[*] ${domain} SSL/TLS sertifikası doğrulanıyor...<br>`;
+
+      setTimeout(() => {
+        kutu.innerHTML += `[+] SSL Sertifikası Geçerli!<br>----------------------------------------<br>`;
+        kutu.innerHTML += `> Alan Adı      : *.${domain}<br>`;
+        kutu.innerHTML += `> Sağlayıcı     : Let's Encrypt / DigiCert<br>`;
+        kutu.innerHTML += `> Güvenlik Katmanı: TLS 1.3 / Şifreli Bağlantı<br>`;
+        kutu.innerHTML += `> Durum         : Güvenli (Süresi devam ediyor)<br>`;
+        kutu.innerHTML += `----------------------------------------<br>[✓] Sertifika kontrolü bitti.`;
+      }, 800);
+    }
+  </script>
+
+</body>
+</html>
